@@ -11,7 +11,7 @@ var colorScale = require('./colorScales');
 
 module.exports = createColormap;
 
-function createColormap (spec) {
+function createColormap(spec) {
     /*
      * Default Options
      */
@@ -23,7 +23,7 @@ function createColormap (spec) {
         b = [],
         a = [];
 
-    if ( !at.isPlainObject(spec) ) spec = {};
+    if (!at.isPlainObject(spec)) spec = {};
 
     nshades = spec.nshades || 72;
     format = spec.format || 'hex';
@@ -49,7 +49,7 @@ function createColormap (spec) {
 
     if (cmap.length > nshades) {
         throw new Error(
-            colormap+' map requires nshades to be at least size '+cmap.length
+            colormap + ' map requires nshades to be at least size ' + cmap.length
         );
     }
 
@@ -72,7 +72,7 @@ function createColormap (spec) {
     /*
      * map index points from 0->1 to 0 -> n-1
      */
-    indicies = cmap.map(function(c) {
+    indicies = cmap.map(function (c) {
         return Math.round(c.index * nshades);
     });
 
@@ -90,46 +90,51 @@ function createColormap (spec) {
 
         // if user supplies their own map use it
         if (rgba.length === 4 && rgba[3] >= 0 && rgba[3] <= 1) continue;
-        rgba[3] = alpha[0] + (alpha[1] - alpha[0])*index;
+        rgba[3] = alpha[0] + (alpha[1] - alpha[0]) * index;
     }
 
     /*
      * map increasing linear values between indicies to
      * linear steps in colorvalues
      */
-    for (i = 0; i < indicies.length-1; ++i) {
-        nsteps = indicies[i+1] - indicies[i];
+    for (i = 0; i < indicies.length - 1; ++i) {
+        nsteps = indicies[i + 1] - indicies[i];
         fromrgba = cmap[i].rgb;
-        torgba = cmap[i+1].rgb;
-        r = r.concat(at.linspace(fromrgba[0], torgba[0], nsteps ) );
-        g = g.concat(at.linspace(fromrgba[1], torgba[1], nsteps ) );
-        b = b.concat(at.linspace(fromrgba[2], torgba[2], nsteps ) );
-        a = a.concat(at.linspace(fromrgba[3], torgba[3], nsteps ) );
+        torgba = cmap[i + 1].rgb;
+        r = r.concat(at.linspace(fromrgba[0], torgba[0], nsteps));
+        g = g.concat(at.linspace(fromrgba[1], torgba[1], nsteps));
+        b = b.concat(at.linspace(fromrgba[2], torgba[2], nsteps));
+        a = a.concat(at.linspace(fromrgba[3], torgba[3], nsteps));
     }
 
-    r = r.map( Math.round );
-    g = g.map( Math.round );
-    b = b.map( Math.round );
+    r = r.map(Math.round);
+    g = g.map(Math.round);
+    b = b.map(Math.round);
 
     colors = at.zip(r, g, b, a);
 
-    if (format === 'hex') colors = colors.map( rgb2hex );
-    if (format === 'rgbaString') colors = colors.map( rgbaStr );
+    if (format === 'hex') colors = colors.map(rgb2hex);
+    if (format === 'rgbaString') colors = colors.map(rgbaStr);
+    if (format === 'rgba32') colors = colors.map(rgba32);
 
     return colors;
 };
 
 
-function rgb2hex (rgba) {
+function rgb2hex(rgba) {
     var dig, hex = '#';
     for (var i = 0; i < 3; ++i) {
         dig = rgba[i];
         dig = dig.toString(16);
-        hex += ('00' + dig).substr( dig.length );
+        hex += ('00' + dig).substr(dig.length);
     }
     return hex;
 }
 
-function rgbaStr (rgba) {
+function rgbaStr(rgba) {
     return 'rgba(' + rgba.join(',') + ')';
+}
+
+function rgba32(rgba) {
+    return (255 << 24) | (rgba[2] << 16) | (rgba[2] << 8) | rgba[0];
 }
