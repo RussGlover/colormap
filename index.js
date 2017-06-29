@@ -136,5 +136,5 @@ function rgbaStr(rgba) {
 }
 
 function rgba32(rgba) {
-    return (255 << 24) | (rgba[2] << 16) | (rgba[2] << 8) | rgba[0];
+    return (255 << 24) | (rgba[2] << 16) | (rgba[1] << 8) | rgba[0];
 }
